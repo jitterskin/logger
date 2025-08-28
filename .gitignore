@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+
+# Environments
+.env
+.env.*
+venv/
+.venv/
+
+# OS/Editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# Local data
+database.db
+*.sqlite3
+
+# Build/Dist
+build/
+dist/
+
+# Cache
+.cache/
+pytest_cache/
+
+# Images/Fonts local (optional cache)
+*.ttf
+*.otf
+
+# Node leftovers (if any)
+node_modules/
